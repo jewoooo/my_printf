@@ -6,51 +6,86 @@
 /*   By: jewoolee <jewoolee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 15:12:33 by jewoolee          #+#    #+#             */
-/*   Updated: 2023/11/06 23:04:25 by jewoolee         ###   ########.fr       */
+/*   Updated: 2023/11/08 02:13:59 by jewoolee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
 #include "libft.h"
 
-int	printf_specifier(va_list *ap, char **format, int n)
+int	printf_c(char c, int len)
 {
-	if (**format == 'c' || **format == '%')
-		n = printf_c(ap, **format,n);
-	else if (**format == 's')
-		n = printf_s(ap, n);
-	else if (**format == 'd' || **format == 'i')
-		n = printf_d(ap, n);
-	else if (**format == 'u')
-		n = printf_u(ap, n);
-	else if (**format == 'x' || **format == 'X')
-		n = printf_x(ap, n);
-	else if (**format == 'p')
-		
-	return (n);
+	ft_putchar_fd(c, 1);
+	len++;
+	return (len);
+}
+
+static int	printf_s(char *s, int len)
+{
+	if (s == NULL)
+	{
+		write(1, "(null)", 6);
+		len += 6;
+		return (len);
+	}
+	while (*s != '\0')
+	{
+		len = printf_c(*s, n);
+		s++;
+	}
+	return (len);
+}
+
+static int	printf_d_i(int num, int len)
+{
+	ft_putnbr_fd(num, 1);
+	if (num <= 0)
+		len++;
+	while (num != 0)
+	{
+		num /= 10;
+		len++;
+	}
+	return (len);
+}
+
+static int	check_specifier(va_list *ap, char c, int len)
+{
+	if (c == 'c')
+		len = printf_c(va_arg(*ap, char), len);
+	else if (c == 's')
+		len = printf_s(va_arg(*ap, char *), len);
+	else if (c == 'd' || c == 'i')
+		len = printf_d_i(va_arg(*ap, int), len);
+	else if (c == 'u')
+		len = printf_u(va_arg(*ap, unsigned int), len);
+	else if (c == 'x' || c == 'X')
+		len = printf_hex(va_arg(*ap, long long), c, len);
+	else if (c == 'p')
+		len = printf_p(va_arg(*ap, unsigned long long), lenn);
+	else if (c == '%')
+		len = printf_c('%', len);
+	return (len);
 }
 
 int	ft_printf(const char *format, ...)
 {
-	int		f_len;
+	int		len;
+	int		i;
 	va_list	ap;
 
-	va_start(ap, format);
-	f_len = 0;
-	while (*format != '\0')
+	len = 0;
+	while (format[i] != '\0')
 	{
-		if (*format = '%')
+		if (format[i] == '%')
 		{
-			format++;
-			f_len = print_specifier(&ap, &format, f_len);
+			i++;
+			len = check_specifier(&ap, fotmat[i], len);
 		}
 		else
-		{
-			ft_putchar_fd(*format, 1);
-			f_len++;
-		}
-		format++;
+			len = ft_printf_c(format[i], len);
+		i++;
 	}
 	va_end(ap);
-	return (f_len);
+	return (len);
 }
