@@ -6,12 +6,11 @@
 /*   By: jewoolee <jewoolee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 15:12:33 by jewoolee          #+#    #+#             */
-/*   Updated: 2023/11/08 02:13:59 by jewoolee         ###   ########.fr       */
+/*   Updated: 2023/11/08 23:14:51 by jewoolee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_printf.h"
-#include "libft.h"
 
 int	printf_c(char c, int len)
 {
@@ -30,7 +29,7 @@ static int	printf_s(char *s, int len)
 	}
 	while (*s != '\0')
 	{
-		len = printf_c(*s, n);
+		len = printf_c(*s, len);
 		s++;
 	}
 	return (len);
@@ -52,7 +51,7 @@ static int	printf_d_i(int num, int len)
 static int	check_specifier(va_list *ap, char c, int len)
 {
 	if (c == 'c')
-		len = printf_c(va_arg(*ap, char), len);
+		len = printf_c(va_arg(*ap, int), len);
 	else if (c == 's')
 		len = printf_s(va_arg(*ap, char *), len);
 	else if (c == 'd' || c == 'i')
@@ -60,31 +59,37 @@ static int	check_specifier(va_list *ap, char c, int len)
 	else if (c == 'u')
 		len = printf_u(va_arg(*ap, unsigned int), len);
 	else if (c == 'x' || c == 'X')
-		len = printf_hex(va_arg(*ap, long long), c, len);
+		len = printf_hex(va_arg(*ap, unsigned int), c, len);
 	else if (c == 'p')
-		len = printf_p(va_arg(*ap, unsigned long long), lenn);
+		len = printf_p(va_arg(*ap, long long), len);
 	else if (c == '%')
 		len = printf_c('%', len);
+	else
+		len = (-1);
 	return (len);
 }
 
 int	ft_printf(const char *format, ...)
 {
 	int		len;
-	int		i;
 	va_list	ap;
 
+	if (format == NULL)
+		return (-1);
+	va_start(ap, format);
 	len = 0;
-	while (format[i] != '\0')
+	while (*format != '\0')
 	{
-		if (format[i] == '%')
+		if (*format == '%')
 		{
-			i++;
-			len = check_specifier(&ap, fotmat[i], len);
+			format++;
+			len = check_specifier(&ap, *format, len);
+			if (len == (-1))
+				break ;
 		}
 		else
-			len = ft_printf_c(format[i], len);
-		i++;
+			len = printf_c(*format, len);
+		format++;
 	}
 	va_end(ap);
 	return (len);
