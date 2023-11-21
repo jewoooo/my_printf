@@ -7,7 +7,7 @@ RM = rm -f
 MAKE_CUR = make -C
 LIBFT_DIR = ./libft
 LIBFT = ./libft/libft.a
-SRCS = ./ft_printf.c ./ft_printf_utils.c
+SRCS = ./ft_printf.c ./ft_printf_utils1.c ./ft_printf_utils2.c
 OBJS = $(SRCS:.c=.o)
 
 all : $(NAME)

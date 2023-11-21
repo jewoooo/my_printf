@@ -6,7 +6,7 @@
 /*   By: jewoolee <jewoolee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/30 15:12:33 by jewoolee          #+#    #+#             */
-/*   Updated: 2023/11/08 23:14:51 by jewoolee         ###   ########.fr       */
+/*   Updated: 2023/11/21 21:24:16 by jewoolee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,22 +14,24 @@
 
 int	printf_c(char c, int len)
 {
-	ft_putchar_fd(c, 1);
+	if (write(1, &c, 1) < 0)
+		return (-1);
 	len++;
 	return (len);
 }
 
-static int	printf_s(char *s, int len)
+int	printf_s(char *s, int len)
 {
 	if (s == NULL)
 	{
-		write(1, "(null)", 6);
-		len += 6;
+		len = printf_s("(null)", len);
 		return (len);
 	}
 	while (*s != '\0')
 	{
 		len = printf_c(*s, len);
+		if (len == (-1))
+			return (-1);
 		s++;
 	}
 	return (len);
@@ -37,14 +39,14 @@ static int	printf_s(char *s, int len)
 
 static int	printf_d_i(int num, int len)
 {
-	ft_putnbr_fd(num, 1);
-	if (num <= 0)
-		len++;
-	while (num != 0)
-	{
-		num /= 10;
-		len++;
-	}
+	char	*s;
+
+	s = ft_itoa(num);
+	if (s == NULL)
+		return (-1);
+	len = printf_s(s, len);
+	free(s);
+	s = NULL;
 	return (len);
 }
 
@@ -61,7 +63,7 @@ static int	check_specifier(va_list *ap, char c, int len)
 	else if (c == 'x' || c == 'X')
 		len = printf_hex(va_arg(*ap, unsigned int), c, len);
 	else if (c == 'p')
-		len = printf_p(va_arg(*ap, long long), len);
+		len = printf_p(va_arg(*ap, void *), len);
 	else if (c == '%')
 		len = printf_c('%', len);
 	else
@@ -84,11 +86,11 @@ int	ft_printf(const char *format, ...)
 		{
 			format++;
 			len = check_specifier(&ap, *format, len);
-			if (len == (-1))
-				break ;
 		}
 		else
 			len = printf_c(*format, len);
+		if (len == (-1))
+			break ;
 		format++;
 	}
 	va_end(ap);
